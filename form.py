@@ -177,7 +177,7 @@ class Flexideck(App):
         Clock.schedule_interval(partial(clockUpdateCallback,self.root), 0.5)
         
 if __name__=="__main__":
-     sio.connect('http://localhost:3000')
+     sio.connect('http://192.168.2.60:3000')
      sio.emit('pyevent', {'user-agent': 'raspberry_pi_python_agent'})
      Window.fullscreen = False
      Window.size = (800, 500)
