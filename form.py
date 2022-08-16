@@ -8,6 +8,9 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.lang import Builder
 from datetime import datetime
 from functools import partial
+from kivy.core.window import Window
+from kivy.config import Config
+import json
 import socketio
 import pytz
 
@@ -47,7 +50,6 @@ class frm(FloatLayout):
         
         super(frm,self).__init__(**kwargs)
 
-        
         self.flexideckString = Label(text = "flexideck version 0.2", size_hint=(0, 0),pos_hint={'x':0.09, 'y':0.02})
         self.main_label = Label(text = "welcome", size_hint=(0, 0),pos_hint={'x':0.08, 'y':0.10})
 
@@ -79,21 +81,21 @@ class frm(FloatLayout):
         self.add_widget(self.dateTwoLable)
 
     #Main Buttons
-        self.camera_button = Button(text = "Camera", size_hint=(.2, .2),pos_hint={'x':.80, 'y':.75}, on_press = self.cameraPressed)
-        self.bluetooth_button = Button(text = "Bluetooth", size_hint=(.2, .2),pos_hint={'x':.60, 'y':.75},on_press = self.bluetoothPressed)
-        self.mic_button = Button(text = "Mic", size_hint=(.2, .2),pos_hint={'x':.80, 'y':.55})
-        self.speaker_button = Button(text = "Speaker", size_hint=(.2, .2),pos_hint={'x':.60, 'y':.55})
-        self.browser_button = Button(text = "Browser", size_hint=(.2, .2),pos_hint={'x':.80, 'y':.35})
-        self.lock_button = Button(text = "Lock Screen", size_hint=(.2, .2),pos_hint={'x':.60, 'y':.35})
-        self.previousTrack_button = Button(text = "<<", size_hint=(.1, .15),pos_hint={'x':.60, 'y':.20})
-        self.playPaus_button = Button(text = "Play", size_hint=(.2, .15),pos_hint={'x':.70, 'y':.20})
-        self.nextTrack_button = Button(text = ">>", size_hint=(.1, .15),pos_hint={'x':.90, 'y':.20})
+        self.volPlus_button = Button(text = "Vol(+)", size_hint=(.2, .2),pos_hint={'x':.80, 'y':.75}, on_press = self.volPlusPressed)
+        self.volMinus_button = Button(text = "Vol(-)", size_hint=(.2, .2),pos_hint={'x':.60, 'y':.75},on_press = self.volMinPressed)
+        self.custom_macro_button = Button(text = "Custom Macro", size_hint=(.2, .2),pos_hint={'x':.80, 'y':.55},on_press = self.customMacroPressed)
+        self.speaker_button = Button(text = "Speaker", size_hint=(.2, .2),pos_hint={'x':.60, 'y':.55}, on_press = self.speakerPressed)
+        self.browser_button = Button(text = "Browser", size_hint=(.2, .2),pos_hint={'x':.80, 'y':.35}, on_press = self.browserPressed)
+        self.lock_button = Button(text = "Lock Screen", size_hint=(.2, .2),pos_hint={'x':.60, 'y':.35}, on_press = self.locakButtonPressed)
+        self.previousTrack_button = Button(text = "<<", size_hint=(.1, .15),pos_hint={'x':.60, 'y':.20},on_press = self.previousTrackPressed)
+        self.playPaus_button = Button(text = "Play", size_hint=(.2, .15),pos_hint={'x':.70, 'y':.20},on_press = self.playPausbuttonPressed)
+        self.nextTrack_button = Button(text = ">>", size_hint=(.1, .15),pos_hint={'x':.90, 'y':.20}, on_press = self.nextTrackPressed)
 
         self.add_widget(self.flexideckString)
         self.add_widget(self.main_label)
-        self.add_widget(self.camera_button)
-        self.add_widget(self.bluetooth_button)
-        self.add_widget(self.mic_button)
+        self.add_widget(self.volPlus_button)
+        self.add_widget(self.volMinus_button)
+        self.add_widget(self.custom_macro_button)
         self.add_widget(self.speaker_button)
         self.add_widget(self.browser_button)
         self.add_widget(self.lock_button)
@@ -105,17 +107,51 @@ class frm(FloatLayout):
 
         self.current_text = "Default"
 
+    def speakerPressed(self, event):
+        sio.emit('speakerPressed', "speakerPressed")
+        self.main_label.text = "Status : speaker button pressed!"
+
+    def browserPressed(self, event):
+        sio.emit('browserPressed', "browserPressed")
+        self.main_label.text = "Status : Browser button pressed!"
+
+    def locakButtonPressed(self, event):
+        sio.emit('locakButtonPressed', "locakButtonPressed")
+        self.main_label.text = "Status : Lock button pressed!"
+
+    def previousTrackPressed(self, event):
+        sio.emit('previousTrackPressed', "previousTrackPressed")
+        self.main_label.text = "Status : Previous track button pressed!"
+
+
+    def playPausbuttonPressed(self, event):
+        sio.emit('playPausbuttonPressed', "playPausbuttonPressed")
+        self.main_label.text = "Status : play pause button pressed!"
+
+    def nextTrackPressed(self, event):
+        sio.emit('nextTrackPressed', "nextTrackPressed")
+        self.main_label.text = "Status : Next track button pressed!"
+        
 
     def on_value(self, instance, brightness):
+        brightnessValue = { "brightness" : str(brightness) }
+        jsond = json.dumps(brightnessValue)
+        print(str(jsond))
+        sio.emit('brightness', str(jsond))
         self.brightnessValue.text = "% d"% brightness
 
-    def cameraPressed(self,event):
-       # sio.emit('pyevent', "toggleCamera")
-        self.main_label.text = "Status : Toggling Camera!"
+    def volPlusPressed(self,event):
+        sio.emit('volPlusPressed', "volPlusPressed")
+        self.main_label.text = "Status : Increasing Master Volume!"
 
-    def bluetoothPressed(self,event):
-       # sio.emit('pyevent', "toggleBluetooth")
-        self.main_label.text = "Status : Toggling Bluetooth!"
+    def volMinPressed(self,event):
+        sio.emit('volMinPressed', "volMinPressed")
+        self.main_label.text = "Status : Volume Min Pressed!"
+
+    def customMacroPressed(self,event):
+        sio.emit('customMacroPressed', "customMacroPressed")
+        self.main_label.text = "Status : custom Macro Min Pressed!"
+        
     
 def clockUpdateCallback(value, key, *largs):
     timeZ_IN = pytz.timezone('Asia/Kolkata')
@@ -134,9 +170,16 @@ def clockUpdateCallback(value, key, *largs):
 class Flexideck(App):
 
     def build(self):  
-        self.root = frm()      
+        #Window.clearcolor = [1,1,1,1]
+        Config.set('graphics','resizable',0)
+        self.root = frm()   
+           
         Clock.schedule_interval(partial(clockUpdateCallback,self.root), 0.5)
         
 if __name__=="__main__":
      sio.connect('http://localhost:3000')
+     sio.emit('pyevent', {'user-agent': 'raspberry_pi_python_agent'})
+     Window.fullscreen = False
+     Window.size = (800, 500)
+     print(Window.size)
      Flexideck().run()
